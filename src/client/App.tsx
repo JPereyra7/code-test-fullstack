@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { AddInput } from "./components/AddInput";
 import { TodoItem } from "./components/TodoItem";
@@ -28,7 +28,7 @@ function App() {
     }
   }, []);
 
-  const addTodo = useCallback(async(description: string) => {
+  const addTodo = useCallback(async (description: string) => {
     const tempId = Date.now();
     const optimisticTodo: Todo = {
       id: tempId,
@@ -66,24 +66,26 @@ function App() {
   }, []);
 
   const handleEdit = useCallback((id: number, newDesc: string) => {
-  setTodos(prev =>
-    prev.map(todo => (todo.id === id ? { ...todo, description: newDesc } : todo))
-  );
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id ? { ...todo, description: newDesc } : todo
+      )
+    );
 
-  (async () => {
-    try {
-      await API.updateTodoDescription(id, newDesc);
-    } catch {
-      // rollback
-      setTodos(prev =>
-        prev.map(todo =>
-          todo.id === id ? { ...todo, description: todo.description } : todo
-        )
-      );
-      alert("Could not save description, reverted.");
-    }
-  })();
-}, []);
+    (async () => {
+      try {
+        await API.updateTodoDescription(id, newDesc);
+      } catch {
+        // rollback
+        setTodos((prev) =>
+          prev.map((todo) =>
+            todo.id === id ? { ...todo, description: todo.description } : todo
+          )
+        );
+        alert("Could not save description, reverted.");
+      }
+    })();
+  }, []);
 
   return (
     <Wrapper>
@@ -91,7 +93,12 @@ function App() {
       <AddInput onAdd={addTodo} />
       <TodoList>
         {todos.map((todo) => (
-          <TodoItem key={todo.id} todo={todo} toggle={handleChange} edit={handleEdit} />
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            toggle={handleChange}
+            edit={handleEdit}
+          />
         ))}
       </TodoList>
     </Wrapper>
