@@ -91,7 +91,7 @@ function App() {
       <AddInput onAdd={addTodo} />
       <TodoList>
         {todos.map((todo) => (
-          <TodoItem todo={todo} toggle={handleChange} />
+          <TodoItem key={todo.id} todo={todo} toggle={handleChange} edit={handleEdit} />
         ))}
       </TodoList>
     </Wrapper>

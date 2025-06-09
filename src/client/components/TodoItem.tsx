@@ -1,4 +1,4 @@
-import React, { FC, ChangeEvent, useState, KeyboardEvent } from "react";
+import { ChangeEvent, useState, KeyboardEvent } from "react";
 import styled from "@emotion/styled";
 import { TodoItemProps } from "../services/TodoInterface";
 
@@ -32,12 +32,10 @@ const Checkbox = styled.input({
   marginRight: 12,
 });
 
-export const TodoItem = ({ todo, toggle, edit }:TodoItemProps) => {
+export const TodoItem = ({ todo, toggle, edit }: TodoItemProps) => {
   const { id, completed, description } = todo;
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(description);
-
-
 
   const handleToggle = (e: ChangeEvent<HTMLInputElement>) => {
     if (toggle) {
@@ -47,19 +45,15 @@ export const TodoItem = ({ todo, toggle, edit }:TodoItemProps) => {
     }
   };
   const save = () => {
-if (text !== description) edit?.(id, text);
-setEditing(false);
-};
-const handleKey = (e: KeyboardEvent<HTMLInputElement>) => {
-if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-};
+    if (text !== description) edit?.(id, text);
+    setEditing(false);
+  };
+  const handleKey = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+  };
   return (
     <Wrapper onDoubleClick={() => setEditing(true)}>
-      <Checkbox
-        type="checkbox"
-        checked={completed}
-        onChange={handleToggle}
-      />
+      <Checkbox type="checkbox" checked={completed} onChange={handleToggle} />
 
       {editing ? (
         <input
