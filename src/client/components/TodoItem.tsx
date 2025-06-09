@@ -1,5 +1,6 @@
-import React, { FC, ChangeEvent } from "react";
+import React, { FC, ChangeEvent, useState, KeyboardEvent } from "react";
 import styled from "@emotion/styled";
+import { TodoItemProps } from "../services/TodoInterface";
 
 export const Wrapper = styled.label({
   display: "flex",
@@ -31,36 +32,47 @@ const Checkbox = styled.input({
   marginRight: 12,
 });
 
-export interface Todo {
-  id: number;
-  completed: boolean;
-  description: string;
-}
-
-export interface TodoItemProps {
-  todo: Todo;
-  toggle?: (id: number, isCompleted: boolean) => void;
-}
-
-export const TodoItem: FC<TodoItemProps> = ({ todo, toggle }) => {
+export const TodoItem = ({ todo, toggle, edit }:TodoItemProps) => {
   const { id, completed, description } = todo;
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState(description);
+
+
 
   const handleToggle = (e: ChangeEvent<HTMLInputElement>) => {
     if (toggle) {
       console.log(todo);
       console.log("hi there", e.target.checked, id);
-      toggle(id, !!e.target.checked);
+      toggle(id, e.target.checked);
     }
   };
+  const save = () => {
+if (text !== description) edit?.(id, text);
+setEditing(false);
+};
+const handleKey = (e: KeyboardEvent<HTMLInputElement>) => {
+if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+};
   return (
-    <Wrapper>
+    <Wrapper onDoubleClick={() => setEditing(true)}>
       <Checkbox
         type="checkbox"
-        id={`${id}`}
         checked={completed}
         onChange={handleToggle}
       />
-      <Label checked={completed}>{description}</Label>
+
+      {editing ? (
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onBlur={save}
+          onKeyDown={handleKey}
+          autoFocus
+          style={{ flex: 1, fontSize: 20 }}
+        />
+      ) : (
+        <Label checked={completed}>{description}</Label>
+      )}
     </Wrapper>
   );
 };

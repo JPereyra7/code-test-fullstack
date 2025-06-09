@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { AddInput } from "./components/AddInput";
-import { TodoItem, Todo } from "./components/TodoItem";
+import { TodoItem } from "./components/TodoItem";
 import { TodoList } from "./components/TodoList";
 import { Header } from "./components/Header";
 
 import "./App.css";
 
 import * as API from "./api";
+import { Todo } from "./services/TodoInterface";
 
 const Wrapper = styled.div({
   display: "flex",
@@ -27,15 +28,62 @@ function App() {
     }
   }, []);
 
-  const addTodo = useCallback(async (description: string) => {
-    await API.addTodo(description);
-    API.getTodos().then(setTodos);
+  const addTodo = useCallback(async(description: string) => {
+    const tempId = Date.now();
+    const optimisticTodo: Todo = {
+      id: tempId,
+      description,
+      completed: false,
+    };
+    setTodos((prev) => [optimisticTodo, ...prev]);
+    try {
+      await API.addTodo(description);
+
+      API.getTodos().then(setTodos);
+    } catch (err) {
+      setTodos((prev) => prev.filter((todo) => todo.id !== tempId));
+      alert("Could not save, todo removed");
+    }
   }, []);
 
   const handleChange = useCallback(async (id: number, isCompleted: boolean) => {
-    await API.toggleTodo(id, isCompleted);
-    API.getTodos().then(setTodos);
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id ? { ...todo, completed: isCompleted } : todo
+      )
+    );
+
+    try {
+      await API.toggleTodo(id, isCompleted);
+    } catch (err) {
+      setTodos((prev) =>
+        prev.map((todo) =>
+          todo.id === id ? { ...todo, completed: !isCompleted } : todo
+        )
+      );
+      alert("Could not save, change restored");
+    }
   }, []);
+
+  const handleEdit = useCallback((id: number, newDesc: string) => {
+  setTodos(prev =>
+    prev.map(todo => (todo.id === id ? { ...todo, description: newDesc } : todo))
+  );
+
+  (async () => {
+    try {
+      await API.updateTodoDescription(id, newDesc);
+    } catch {
+      // rollback
+      setTodos(prev =>
+        prev.map(todo =>
+          todo.id === id ? { ...todo, description: todo.description } : todo
+        )
+      );
+      alert("Could not save description, reverted.");
+    }
+  })();
+}, []);
 
   return (
     <Wrapper>

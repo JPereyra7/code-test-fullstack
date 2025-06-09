@@ -1,3 +1,5 @@
+import { iTodo } from "./services/iTodo";
+
 export async function getTodos() {
   const resp = await fetch("/api/todos");
   if (resp.ok) {
@@ -35,7 +37,7 @@ export async function deleteTodo(id: number) {
 }
 
 export async function toggleTodo(id: number, isCompleted: boolean) {
-  // Implement me!
+  // Implement me! - Sure thing! 👋🏼
   const resp = await fetch(`/api/todos/${id}`, {
     method: "PATCH",
     headers: {
@@ -43,4 +45,16 @@ export async function toggleTodo(id: number, isCompleted: boolean) {
     },
     body: JSON.stringify({ completed: isCompleted }),
   });
+  if (!resp.ok) throw new Error("Unable to toggle todo");
+  return (await resp.json()) as iTodo; // imported an interface for the todo object
+}
+
+export async function updateTodoDescription(id: number, description: string) {
+  const resp = await fetch(`/api/todos/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ description }),
+  });
+  if (!resp.ok) throw new Error("Unable to update description");
+  return await resp.json();         
 }
